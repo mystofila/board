@@ -19,7 +19,7 @@
 
 // ── Config ────────────────────────────────────────────────────
 const ApifyConfig = {
-  token: localStorage.getItem('apify_token') || 'APIFY_TOKEN_ICI',
+  token: localStorage.getItem('apify_token') || 'apify_api_LppgFpzuvIbCaC3RE2cmRPRapbPeqB135kFI',
   baseUrl: 'https://api.apify.com/v2',
 
   // Actors Apify (IDs stables)
