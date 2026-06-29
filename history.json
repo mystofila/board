@@ -1,1 +1,48 @@
-[]
+[
+  {
+    "platform": "facebook_es",
+    "label": "Facebook Espagne",
+    "date": "2026-06-29",
+    "followers": 118,
+    "posts": 0,
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "engagement": 0.0,
+    "name": "Old Timers"
+  },
+  {
+    "platform": "facebook_fr",
+    "label": "Facebook France",
+    "date": "2026-06-29",
+    "followers": 314,
+    "posts": 0,
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "engagement": 0.0,
+    "name": "Pair Aidant - Peer Support | Paris"
+  },
+  {
+    "platform": "instagram",
+    "label": "Instagram",
+    "date": "2026-06-29",
+    "followers": 0,
+    "posts": 0,
+    "likes": 0,
+    "comments": 0,
+    "engagement": 0
+  },
+  {
+    "platform": "tiktok",
+    "label": "TikTok",
+    "date": "2026-06-29",
+    "followers": 711,
+    "likes": 2595,
+    "videos": 551,
+    "views": 758,
+    "comments": 3,
+    "shares": 4,
+    "engagement": 2.64
+  }
+]
