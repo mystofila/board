@@ -104,7 +104,7 @@ function getFiltered() {
 function renderStatCards(plats) {
   const grid = document.getElementById('stat-cards');
   if (!grid) return;
-  const entries = Object.entries(plats).filter(([,p]) => p && p.followers);
+  const entries = Object.entries(plats).filter(([,p]) => p != null);
 
   if (!entries.length) {
     grid.innerHTML = emptyState('Aucune donnée', 'Configurez votre token Apify dans Paramètres.');
