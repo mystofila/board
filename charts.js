@@ -51,7 +51,7 @@ function buildFollowersChart(plats) {
   const el = document.getElementById(id); if (!el) return;
   const ctx = el.getContext('2d');
 
-  const entries = Object.entries(plats).filter(([, p]) => p && p.followers);
+  const entries = Object.entries(plats).filter(([, p]) => p != null);
   if (!entries.length) return;
 
   // Utiliser le vrai historique si dispo, sinon juste le point actuel
@@ -90,7 +90,7 @@ function buildFollowersChart(plats) {
 function buildDonutChart(plats) {
   const id = 'chart-donut'; destroyChart(id);
   const el = document.getElementById(id); if (!el) return;
-  const entries = Object.entries(plats).filter(([, p]) => p && p.followers);
+  const entries = Object.entries(plats).filter(([, p]) => p != null);
   if (!entries.length) return;
 
   ChartReg[id] = new Chart(el.getContext('2d'), {
@@ -113,7 +113,7 @@ function buildDonutChart(plats) {
 function buildEngagementChart(plats) {
   const id = 'chart-engagement'; destroyChart(id);
   const el = document.getElementById(id); if (!el) return;
-  const entries = Object.entries(plats).filter(([, p]) => p && p.engagement);
+  const entries = Object.entries(plats).filter(([, p]) => p != null);
   if (!entries.length) return;
 
   const allDates = [...new Set(MockAPI._raw.map(e => e.date).filter(Boolean))].sort();
@@ -138,7 +138,7 @@ function buildEngagementChart(plats) {
 function buildReachChart(plats) {
   const id = 'chart-reach'; destroyChart(id);
   const el = document.getElementById(id); if (!el) return;
-  const entries = Object.entries(plats).filter(([, p]) => p && p.followers);
+  const entries = Object.entries(plats).filter(([, p]) => p != null);
   if (!entries.length) return;
 
   const allDates = [...new Set(MockAPI._raw.map(e => e.date).filter(Boolean))].sort();
