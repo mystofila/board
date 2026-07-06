@@ -1,38 +1,30 @@
 /**
- * data.js — Lit history.json du repo, pas Apify directement
+ * data.js — Lit history.json depuis GitHub Pages
  */
 
 const ApifyConfig = {
   token: localStorage.getItem('apify_token') || '',
-  handles: {
-    tiktok:      'https://www.tiktok.com/@afder.recovery',
-    instagram:   'afder.recovery',
-    facebook_fr: 'https://www.facebook.com/afder.recovery',
-    facebook_es: 'https://www.facebook.com/OldTimersRecovery/',
-  },
 };
 
-// ── MockAPI ───────────────────────────────────────────────────
 const MockAPI = {
-  _raw:      [],   // toutes les entrées de history.json
-  _latest:   {},   // dernière entrée par plateforme
+  _raw:       [],
+  _latest:    {},
   _callbacks: [],
   _loading:   false,
 
-  async loadAll(force = false) {
+  async loadAll() {
     if (this._loading) return;
     this._loading = true;
     this._notify('loading', null);
 
     try {
-      // Fetch history.json depuis le même repo (chemin relatif)
-      const res = await fetch('history.json?nocache=' + Date.now());
-      if (!res.ok) throw new Error(`history.json introuvable (${res.status})`);
+      const res = await fetch('https://mystofila.github.io/board/history.json?v=' + Date.now());
+      if (!res.ok) throw new Error('history.json introuvable (' + res.status + ')');
       const data = await res.json();
 
       this._raw = Array.isArray(data) ? data : [];
 
-      // Extraire la dernière entrée par plateforme
+      // Dernière entrée par plateforme (peu importe si followers = 0)
       const KEYS = ['tiktok', 'instagram', 'facebook_fr', 'facebook_es'];
       this._latest = {};
       KEYS.forEach(key => {
@@ -51,17 +43,15 @@ const MockAPI = {
     this._loading = false;
   },
 
-  on(fn)               { this._callbacks.push(fn); },
-  _notify(type, payload) { this._callbacks.forEach(fn => { try { fn(type, payload); } catch {} }); },
+  on(fn)                { this._callbacks.push(fn); },
+  _notify(type, payload){ this._callbacks.forEach(fn => { try { fn(type, payload); } catch {} }); },
 
   getPlatforms() { return this._latest; },
 
-  // Historique complet pour la page Historique
   getHistory() {
     return [...this._raw].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   },
 
-  // Posts — history.json ne contient pas le détail des posts pour l'instant
   getTopPosts() { return []; },
 
   getAlerts() {
@@ -70,19 +60,27 @@ const MockAPI = {
     const p = this._latest;
 
     if (!Object.keys(p).length) {
-      alerts.push({ id: id++, type: 'info', icon: '⚙️', title: 'history.json vide ou introuvable', desc: 'Lancez le workflow GitHub Actions pour récupérer les données.', time: '', read: false });
+      alerts.push({ id: id++, type: 'info', icon: '⚙️',
+        title: 'Aucune donnée chargée',
+        desc: 'Vérifiez que history.json existe dans le repo et que GitHub Pages est actif.',
+        time: '', read: false });
     }
-    if (p.tiktok && p.tiktok.followers > 10000) {
-      alerts.push({ id: id++, type: 'record', icon: '🏆', title: `TikTok — ${this.fmt(p.tiktok.followers)} abonnés`, desc: '', time: p.tiktok.date || '', read: false });
+    if (p.tiktok && p.tiktok.followers > 500) {
+      alerts.push({ id: id++, type: 'record', icon: '🏆',
+        title: `TikTok — ${this.fmt(p.tiktok.followers)} abonnés`,
+        desc: '', time: p.tiktok.date || '', read: false });
     }
-    if (p.instagram && p.instagram.engagement < 3) {
-      alerts.push({ id: id++, type: 'warning', icon: '📉', title: 'Engagement Instagram faible', desc: `Taux actuel : ${p.instagram.engagement}%`, time: p.instagram.date || '', read: false });
+    if (p.instagram && p.instagram.engagement > 0 && p.instagram.engagement < 3) {
+      alerts.push({ id: id++, type: 'warning', icon: '📉',
+        title: 'Engagement Instagram faible',
+        desc: `Taux actuel : ${p.instagram.engagement}%`,
+        time: p.instagram.date || '', read: false });
     }
     return alerts;
   },
 
   setToken(token) { ApifyConfig.token = token; localStorage.setItem('apify_token', token); },
-  clearCache()    { /* pas de cache côté client, history.json est la source */ },
+  clearCache()    {},
 
   fmt(n) {
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
