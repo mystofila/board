@@ -3,7 +3,7 @@
  */
 
 const AppState = {
-  weeklyHistory: [],
+  
   network:  'all',
   history:  [],
   filtered: [],
@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  MockAPI.loadHistory().then(h => { AppState.weeklyHistory = h; });
   MockAPI.loadAll();
 });
 
