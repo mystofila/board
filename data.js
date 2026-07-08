@@ -25,7 +25,7 @@ const MockAPI = {
       this._raw = Array.isArray(data) ? data : [];
 
       // Dernière entrée par plateforme (peu importe si followers = 0)
-      const KEYS = ['tiktok', 'instagram', 'facebook_fr', 'facebook_es'];
+      const KEYS = ['tiktok', 'facebook_fr', 'facebook_es'];
       this._latest = {};
       KEYS.forEach(key => {
         const entries = this._raw
@@ -70,12 +70,6 @@ const MockAPI = {
         title: `TikTok — ${this.fmt(p.tiktok.followers)} abonnés`,
         desc: '', time: p.tiktok.date || '', read: false });
     }
-    if (p.instagram && p.instagram.engagement > 0 && p.instagram.engagement < 3) {
-      alerts.push({ id: id++, type: 'warning', icon: '📉',
-        title: 'Engagement Instagram faible',
-        desc: `Taux actuel : ${p.instagram.engagement}%`,
-        time: p.instagram.date || '', read: false });
-    }
     return alerts;
   },
 
@@ -90,19 +84,16 @@ const MockAPI = {
 
   COLORS: {
     tiktok:      '#FF0050',
-    instagram:   '#E1306C',
     facebook_fr: '#1877F2',
     facebook_es: '#0A5DC2',
   },
   ICONS: {
     tiktok:      '🎵',
-    instagram:   '📸',
     facebook_fr: '🇫🇷',
     facebook_es: '🇪🇸',
   },
   LABELS: {
     tiktok:      'TikTok',
-    instagram:   'Instagram',
     facebook_fr: 'Facebook France',
     facebook_es: 'Facebook Espagne',
   },
