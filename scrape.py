@@ -1,18 +1,22 @@
 """
 scrape.py — Scraping AFDER
 - TikTok       : Apify
-- Facebook FR  : Apify
+- Facebook FR  : API Graph officielle (FB_PAGE_TOKEN + FB_PAGE_ID)
 - Facebook ES  : Apify
-- Instagram    : désactivé (pas d'accès)
+- Instagram    : désactivé
 """
 
 import os, json, time, requests
 from datetime import datetime, timezone
 
-TODAY       = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-APIFY_TOKEN = os.environ.get('APIFY_TOKEN', '')
-APIFY_BASE  = 'https://api.apify.com/v2'
+TODAY        = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+APIFY_TOKEN  = os.environ.get('APIFY_TOKEN', '')
+FB_PAGE_TOKEN= os.environ.get('FB_PAGE_TOKEN', '')
+FB_PAGE_ID   = os.environ.get('FB_PAGE_ID', '')
+APIFY_BASE   = 'https://api.apify.com/v2'
+GRAPH_BASE   = 'https://graph.facebook.com/v19.0'
 
+# ── Apify ─────────────────────────────────────────────────────
 def run_actor(actor_id, input_data, timeout=120):
     if not APIFY_TOKEN:
         print('  ✗ APIFY_TOKEN manquant')
@@ -27,6 +31,7 @@ def run_actor(actor_id, input_data, timeout=120):
         print(f'  ✗ Apify erreur : {e}')
         return None
 
+# ── TikTok via Apify ──────────────────────────────────────────
 def scrape_tiktok():
     print('→ TikTok…')
     items = run_actor('clockworks~tiktok-scraper', {
@@ -36,13 +41,13 @@ def scrape_tiktok():
     })
     if not items:
         return None
-    p    = items[0]
-    meta = p.get('authorMeta', {})
+    p         = items[0]
+    meta      = p.get('authorMeta', {})
     followers = meta.get('fans', 0)
     likes     = meta.get('heart', 0)
     videos    = meta.get('video', 0)
-    eng = round(likes / max(followers * max(videos, 1), 1) * 100, 2) if followers else 0
-    result = {
+    eng       = round(likes / max(followers * max(videos, 1), 1) * 100, 2) if followers else 0
+    result    = {
         'platform':   'tiktok',
         'label':      'TikTok',
         'date':       TODAY,
@@ -56,18 +61,73 @@ def scrape_tiktok():
     print(f"  ✓ {result['followers']:,} abonnés, {result['likes']:,} likes")
     return result
 
-def scrape_facebook(platform, label, url):
-    print(f'→ {label}…')
+# ── Facebook FR via API Graph ─────────────────────────────────
+def scrape_facebook_fr():
+    print('→ Facebook France (API Graph)…')
+    if not FB_PAGE_TOKEN or not FB_PAGE_ID:
+        print('  ✗ FB_PAGE_TOKEN ou FB_PAGE_ID manquant')
+        return None
+    try:
+        # Infos de la page
+        r = requests.get(
+            f"{GRAPH_BASE}/{FB_PAGE_ID}",
+            params={'fields': 'name,fan_count,followers_count', 'access_token': FB_PAGE_TOKEN},
+            timeout=30
+        )
+        r.raise_for_status()
+        page      = r.json()
+        followers = page.get('fan_count') or page.get('followers_count') or 0
+
+        # Posts récents avec stats
+        r2 = requests.get(
+            f"{GRAPH_BASE}/{FB_PAGE_ID}/posts",
+            params={
+                'fields': 'message,likes.summary(true),comments.summary(true),shares',
+                'limit': 10,
+                'access_token': FB_PAGE_TOKEN,
+            },
+            timeout=30
+        )
+        r2.raise_for_status()
+        posts = r2.json().get('data', [])
+
+        total_likes    = sum(p.get('likes',    {}).get('summary', {}).get('total_count', 0) for p in posts)
+        total_comments = sum(p.get('comments', {}).get('summary', {}).get('total_count', 0) for p in posts)
+        total_shares   = sum((p.get('shares') or {}).get('count', 0) for p in posts)
+        n_posts        = len(posts)
+        eng = round((total_likes + total_comments + total_shares) / max(n_posts, 1) / max(followers, 1) * 100, 2) if followers else 0
+
+        result = {
+            'platform':   'facebook_fr',
+            'label':      'Facebook France',
+            'date':       TODAY,
+            'name':       page.get('name', 'AFDER France'),
+            'followers':  followers,
+            'posts':      n_posts,
+            'likes':      total_likes,
+            'comments':   total_comments,
+            'shares':     total_shares,
+            'engagement': eng,
+        }
+        print(f"  ✓ {result['followers']:,} abonnés, {n_posts} posts, {total_likes} likes")
+        return result
+
+    except Exception as e:
+        print(f'  ✗ Facebook API erreur : {e}')
+        return None
+
+# ── Facebook ES via Apify ─────────────────────────────────────
+def scrape_facebook_es():
+    print('→ Facebook Espagne (Apify)…')
     items = run_actor('apify~facebook-pages-scraper', {
-        'startUrls': [{'url': url}],
+        'startUrls': [{'url': 'https://www.facebook.com/OldTimersRecovery/'}],
         'maxPosts': 10,
     })
     if not items:
         return None
 
-    page  = next((i for i in items if i.get('likes') or i.get('followers') or i.get('title')), items[0])
-    posts = [i for i in items if i.get('message') or i.get('text')]
-
+    page           = next((i for i in items if i.get('likes') or i.get('title')), items[0])
+    posts          = [i for i in items if i.get('message') or i.get('text')]
     followers      = page.get('likes') or page.get('followers') or 0
     total_likes    = sum(i.get('likes',    0) for i in posts)
     total_comments = sum(i.get('comments', 0) for i in posts)
@@ -75,10 +135,10 @@ def scrape_facebook(platform, label, url):
     eng = round((total_likes + total_comments + total_shares) / max(len(posts), 1) / max(followers, 1) * 100, 2) if followers else 0
 
     result = {
-        'platform':   platform,
-        'label':      label,
+        'platform':   'facebook_es',
+        'label':      'Facebook Espagne',
         'date':       TODAY,
-        'name':       page.get('title') or page.get('name') or label,
+        'name':       page.get('title') or page.get('name') or 'Old Timers',
         'followers':  followers,
         'posts':      len(posts),
         'likes':      total_likes,
@@ -86,27 +146,22 @@ def scrape_facebook(platform, label, url):
         'shares':     total_shares,
         'engagement': eng,
     }
-    print(f"  ✓ {result['followers']:,} abonnés, {result['posts']} posts scrapés")
+    print(f"  ✓ {result['followers']:,} abonnés")
     return result
 
+# ── Main ──────────────────────────────────────────────────────
 def main():
     print(f"\n📊 Scraping AFDER — {TODAY}\n")
 
     results = []
-
-    r = scrape_tiktok()
-    if r: results.append(r)
-    time.sleep(3)
-
-    r = scrape_facebook('facebook_fr', 'Facebook France', 'https://www.facebook.com/afder.recovery')
-    if r: results.append(r)
-    time.sleep(3)
-
-    r = scrape_facebook('facebook_es', 'Facebook Espagne', 'https://www.facebook.com/OldTimersRecovery/')
-    if r: results.append(r)
+    for scraper in [scrape_tiktok, scrape_facebook_fr, scrape_facebook_es]:
+        r = scraper()
+        if r:
+            results.append(r)
+        time.sleep(3)
 
     if not results:
-        print('\n✗ Aucun résultat — history.json non modifié')
+        print('\n✗ Aucun résultat')
         exit(1)
 
     history_file = 'history.json'
