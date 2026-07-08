@@ -2,8 +2,8 @@ name: Scrape stats AFDER
 
 on:
   schedule:
-    - cron: '0 8 * * 1'  # Chaque lundi à 8h UTC
-  workflow_dispatch:       # Lancement manuel
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
 
 jobs:
   scrape:
@@ -12,24 +12,19 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install requests
+      - run: pip install requests
 
       - name: Run scraper
         env:
-          APIFY_TOKEN:            ${{ secrets.APIFY_TOKEN }}
-          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
-          INSTAGRAM_USER_ID:      ${{ secrets.INSTAGRAM_USER_ID }}
-          FB_PAGE_TOKEN:          ${{ secrets.FB_PAGE_TOKEN }}
-          FB_PAGE_ID:             ${{ secrets.FB_PAGE_ID }}
+          APIFY_TOKEN:   ${{ secrets.APIFY_TOKEN }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          FB_PAGE_ID:    ${{ secrets.FB_PAGE_ID }}
         run: python scrape.py
 
       - name: Commit history.json
