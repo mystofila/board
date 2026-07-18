@@ -168,11 +168,42 @@ def scrape_facebook_es():
     }
 
 # ── Main ──────────────────────────────────────────────────────
+
+# ── Instagram via Apify (public, sans login) ──────────────────
+def scrape_instagram():
+    print("→ Instagram (Apify, public)…")
+    items = run_actor("apify~instagram-scraper", {
+        "usernames": ["afder.recovery"],
+        "resultsType": "details",
+        "resultsLimit": 1,
+    })
+    if not items:
+        return None
+    p         = items[0]
+    followers = p.get("followersCount") or p.get("followedByCount") or 0
+    posts     = p.get("postsCount") or p.get("mediaCount") or 0
+    if not followers:
+        print("  ✗ Aucune donnée publique récupérée")
+        return None
+    result = {
+        "platform":   "instagram",
+        "label":      "Instagram",
+        "date":       TODAY,
+        "name":       p.get("fullName") or p.get("username") or "AFDER Recovery",
+        "followers":  followers,
+        "posts":      posts,
+        "likes":      0,
+        "comments":   0,
+        "engagement": 0,
+    }
+    print(f"  ✓ {followers:,} abonnés · {posts} posts")
+    return result
+
 def main():
     print(f"\n📊 Scraping AFDER — {TODAY}\n")
 
     results = []
-    for scraper in [scrape_tiktok, scrape_facebook_fr, scrape_facebook_es]:
+    for scraper in [scrape_tiktok, scrape_instagram, scrape_facebook_fr, scrape_facebook_es]:
         r = scraper()
         if r:
             results.append(r)
