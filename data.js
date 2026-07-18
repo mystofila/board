@@ -25,7 +25,7 @@ const MockAPI = {
       this._raw = Array.isArray(data) ? data : [];
 
       // Dernière entrée par plateforme (peu importe si followers = 0)
-      const KEYS = ['tiktok', 'facebook_fr', 'facebook_es'];
+      const KEYS = ['tiktok', 'instagram', 'facebook_fr', 'facebook_es'];
       this._latest = {};
       KEYS.forEach(key => {
         const entries = this._raw
@@ -83,16 +83,19 @@ const MockAPI = {
   },
 
   COLORS: {
+    instagram:   '#E1306C',
     tiktok:      '#FF0050',
     facebook_fr: '#1877F2',
     facebook_es: '#0A5DC2',
   },
   ICONS: {
+    instagram:   '📸',
     tiktok:      '🎵',
     facebook_fr: '🇫🇷',
     facebook_es: '🇪🇸',
   },
   LABELS: {
+    instagram:   'Instagram',
     tiktok:      'TikTok',
     facebook_fr: 'Facebook France',
     facebook_es: 'Facebook Espagne',
