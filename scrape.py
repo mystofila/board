@@ -171,33 +171,58 @@ def scrape_facebook_es():
 
 # ── Instagram via Apify (public, sans login) ──────────────────
 def scrape_instagram():
-    print("→ Instagram (Apify, public)…")
-    items = run_actor("apify~instagram-scraper", {
-        "usernames": ["afder.recovery"],
-        "resultsType": "details",
-        "resultsLimit": 1,
+    print('→ Instagram (Apify, sans login)…')
+
+    # Essai 1 : parseforge~instagram-profile-scraper (mis à jour avril 2026)
+    items = run_actor('parseforge~instagram-profile-scraper', {
+        'usernames': ['afder.recovery'],
     })
-    if not items:
-        return None
-    p         = items[0]
-    followers = p.get("followersCount") or p.get("followedByCount") or 0
-    posts     = p.get("postsCount") or p.get("mediaCount") or 0
-    if not followers:
-        print("  ✗ Aucune donnée publique récupérée")
-        return None
-    result = {
-        "platform":   "instagram",
-        "label":      "Instagram",
-        "date":       TODAY,
-        "name":       p.get("fullName") or p.get("username") or "AFDER Recovery",
-        "followers":  followers,
-        "posts":      posts,
-        "likes":      0,
-        "comments":   0,
-        "engagement": 0,
-    }
-    print(f"  ✓ {followers:,} abonnés · {posts} posts")
-    return result
+    if items:
+        p         = items[0]
+        followers = p.get('followersCount') or p.get('followers') or p.get('followerCount') or 0
+        posts     = p.get('postsCount') or p.get('mediaCount') or p.get('posts') or 0
+        if followers:
+            print(f'  ✓ (actor 1) {followers:,} abonnés · {posts} posts')
+            return {
+                'platform':   'instagram',
+                'label':      'Instagram',
+                'date':       TODAY,
+                'name':       p.get('fullName') or p.get('username') or 'AFDER Recovery',
+                'followers':  followers,
+                'posts':      posts,
+                'likes':      0,
+                'comments':   0,
+                'engagement': 0,
+            }
+
+    print('  ↩ Actor 1 vide, essai actor 2…')
+
+    # Essai 2 : automation-lab~instagram-followers-count-bulk-scraper (API mobile Instagram)
+    items = run_actor('automation-lab~instagram-followers-count-bulk-scraper', {
+        'usernames': ['afder.recovery'],
+    })
+    if items:
+        p         = items[0]
+        followers = p.get('followersCount') or p.get('followers') or p.get('followerCount') or 0
+        posts     = p.get('postsCount') or p.get('mediaCount') or 0
+        if followers:
+            print(f'  ✓ (actor 2) {followers:,} abonnés · {posts} posts')
+            return {
+                'platform':   'instagram',
+                'label':      'Instagram',
+                'date':       TODAY,
+                'name':       p.get('fullName') or p.get('username') or 'AFDER Recovery',
+                'followers':  followers,
+                'posts':      posts,
+                'likes':      0,
+                'comments':   0,
+                'engagement': 0,
+            }
+
+    print('  ✗ Instagram introuvable sur les deux actors')
+    return None
+
+
 
 def main():
     print(f"\n📊 Scraping AFDER — {TODAY}\n")
