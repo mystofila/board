@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AFDER Analytics</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="style.css" />
@@ -14,7 +13,7 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="logo-icon">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" fill="currentColor" opacity=".9"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" fill="currentColor"/></svg>
     </div>
     <span class="logo-text">AFDER Analytics</span>
   </div>
@@ -26,10 +25,6 @@
     <a class="nav-item" data-page="compare" onclick="navigateTo('compare')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
       Comparatif
-    </a>
-    <a class="nav-item" data-page="posts" onclick="navigateTo('posts')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Publications
     </a>
     <a class="nav-item" data-page="history" onclick="navigateTo('history')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -52,8 +47,7 @@
     <button class="sidebar-toggle" onclick="toggleSidebar()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-    <!-- Filtre réseau -->
-    <div class="network-tabs" id="network-tabs">
+    <div class="network-tabs">
       <button class="net-btn active" data-net="all"         onclick="setNetwork('all',this)">Tout</button>
       <button class="net-btn" data-net="tiktok"      onclick="setNetwork('tiktok',this)">🎵 TikTok</button>
       <button class="net-btn" data-net="facebook_fr" onclick="setNetwork('facebook_fr',this)">🇫🇷 Facebook FR</button>
@@ -64,7 +58,7 @@
         <div class="status-dot" id="status-dot"></div>
         <span id="status-text" style="font-size:12px;color:var(--text-muted)">Chargement…</span>
       </div>
-      <button class="btn-secondary" onclick="refreshData()" title="Actualiser">↺</button>
+      <button class="btn-secondary" onclick="refreshData()">↺</button>
     </div>
   </header>
 
@@ -76,24 +70,16 @@
       <div class="charts-row">
         <div class="chart-card span-2">
           <div class="chart-card-header">
-            <h3 class="chart-title">Abonnés</h3>
+            <h3 class="chart-title">Évolution des abonnés</h3>
             <div id="followers-legend" class="chart-legend"></div>
           </div>
           <div class="chart-wrap"><canvas id="chart-followers"></canvas></div>
         </div>
         <div class="chart-card">
-          <div class="chart-card-header"><h3 class="chart-title">Répartition</h3></div>
-          <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
-        </div>
-      </div>
-      <div class="charts-row">
-        <div class="chart-card">
-          <div class="chart-card-header"><h3 class="chart-title">Engagement (%)</h3></div>
+          <div class="chart-card-header">
+            <h3 class="chart-title">Engagement (%)</h3>
+          </div>
           <div class="chart-wrap"><canvas id="chart-engagement"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-card-header"><h3 class="chart-title">Portée & Impressions</h3></div>
-          <div class="chart-wrap"><canvas id="chart-reach"></canvas></div>
         </div>
       </div>
     </div>
@@ -101,11 +87,6 @@
     <!-- COMPARE -->
     <div class="page" id="page-compare">
       <div class="platform-grid" id="platform-cards"></div>
-    </div>
-
-    <!-- POSTS -->
-    <div class="page" id="page-posts">
-      <div id="posts-content"></div>
     </div>
 
     <!-- HISTORY -->
@@ -131,24 +112,17 @@
       <div class="card" style="max-width:520px">
         <h3 class="settings-section-title">Connexion Apify</h3>
         <p class="setting-desc" style="margin-bottom:16px">
-          Apify visite vos comptes publics et récupère les statistiques.<br>
-          <a href="https://apify.com" target="_blank" style="color:var(--accent)">apify.com</a> → Settings → Integrations → copier le token.
+          Apify scrape vos comptes publics chaque lundi.<br>
+          <a href="https://apify.com" target="_blank" style="color:var(--accent)">apify.com</a> → Settings → Integrations → copier le token → GitHub repo board → Settings → Secrets.
         </p>
-        <div style="display:flex;gap:8px">
-          <input type="password" id="apify-token-input" class="form-input" placeholder="apify_api_…" style="flex:1;font-family:var(--font-mono);font-size:12px" />
-          <button class="btn-primary" onclick="saveApifyToken()">Enregistrer</button>
-        </div>
-        <div id="token-status" style="margin-top:8px;font-size:12px;color:var(--text-muted)"></div>
-        <div style="display:flex;gap:8px;margin-top:20px">
-          <button class="btn-primary" onclick="refreshData()">↺ Actualiser maintenant</button>
-          <button class="btn-secondary" onclick="clearAllCache()">Vider le cache</button>
-        </div>
         <div style="margin-top:20px;font-size:12px;color:var(--text-muted);line-height:2">
           <strong>Comptes surveillés</strong><br>
           🎵 <a href="https://www.tiktok.com/@afder.recovery" target="_blank" style="color:var(--accent)">tiktok.com/@afder.recovery</a><br>
-          📸 <a href="https://www.instagram.com/afder.recovery/" target="_blank" style="color:var(--accent)">instagram.com/afder.recovery</a><br>
           🇫🇷 <a href="https://www.facebook.com/afder.recovery" target="_blank" style="color:var(--accent)">facebook.com/afder.recovery</a> (France)<br>
-          🇪🇸 <a href="https://www.facebook.com/OldTimersRecovery/" target="_blank" style="color:var(--accent)">facebook.com/OldTimersRecovery</a> (Espagne)
+          🇪🇸 <a href="https://www.facebook.com/OldTimersRecovery/" target="_blank" style="color:var(--accent)">facebook.com/OldTimersRecovery</a> (Espagne)<br>
+        </div>
+        <div style="margin-top:20px">
+          <button class="btn-primary" onclick="refreshData()">↺ Recharger les données</button>
         </div>
       </div>
     </div>
