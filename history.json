@@ -309,5 +309,28 @@
     "comments": 3,
     "shares": 4,
     "engagement": 0.63
+  },
+  {
+    "platform": "facebook_es",
+    "label": "Facebook Espagne",
+    "date": "2026-08-24",
+    "name": "Old Timers",
+    "followers": 119,
+    "posts": 3,
+    "likes": 0,
+    "comments": 0,
+    "shares": 6,
+    "engagement": 1.68
+  },
+  {
+    "platform": "tiktok",
+    "label": "TikTok",
+    "date": "2026-08-24",
+    "followers": 706,
+    "likes": 2631,
+    "videos": 599,
+    "comments": 3,
+    "shares": 4,
+    "engagement": 0.62
   }
 ]
