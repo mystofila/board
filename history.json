@@ -638,5 +638,39 @@
     "comments": 3,
     "shares": 4,
     "engagement": 0.58
+  },
+  {
+    "platform": "facebook_es",
+    "label": "Facebook Espagne",
+    "date": "2026-11-02",
+    "name": "Old Timers",
+    "followers": 118,
+    "posts": 3,
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "engagement": 0.0
+  },
+  {
+    "platform": "instagram",
+    "label": "Instagram",
+    "date": "2026-11-02",
+    "name": "Pair Aidant - Peer Support",
+    "followers": 1366,
+    "posts": 121,
+    "likes": 0,
+    "comments": 0,
+    "engagement": 0
+  },
+  {
+    "platform": "tiktok",
+    "label": "TikTok",
+    "date": "2026-11-02",
+    "followers": 694,
+    "likes": 2652,
+    "videos": 662,
+    "comments": 3,
+    "shares": 4,
+    "engagement": 0.58
   }
 ]
